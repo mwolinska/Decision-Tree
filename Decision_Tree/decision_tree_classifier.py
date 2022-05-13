@@ -179,21 +179,26 @@ class DecisionTreeClassifier:
 
         return success_ratio
 
-    def draw(self):
-        self.assign_nodes_to_visual(self.tree, '')
+    def draw(self, dataset: Dataset):
+        self.assign_nodes_to_visual(self.tree, '', dataset)
         self.tree_visual.view(filename="tree_visual")
 
-    def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str):
+    def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str, dataset: Dataset):
         if isinstance(tree, Leaf):
-            self.tree_visual.node(node_name, "Class label: " + str(tree.leaf_value))
+            class_label = dataset.get_label(int(tree.leaf_value))
+            self.tree_visual.node(node_name, "Class label: " + str(class_label))
         else:
             operator = tree.split_condition.operator_string
-            node_label = f"Feature {tree.split_condition.feature} {operator} {tree.split_condition.split_value}"
+
+            feature_name = dataset.get_feature(tree.split_condition.feature)
+
+            node_label = f"Feature {feature_name} {operator} {tree.split_condition.split_value}"
 
             self.tree_visual.node(node_name, label=node_label)
             self.tree_visual.edge(node_name, node_name + "-L", label="True")
             self.tree_visual.edge(node_name, node_name + "-R", label="False")
-            return self.assign_nodes_to_visual(tree.left, node_name + "-L"), self.assign_nodes_to_visual(tree.right, node_name + "-R")
+            return self.assign_nodes_to_visual(tree.left, node_name + "-L", dataset), \
+                   self.assign_nodes_to_visual(tree.right, node_name + "-R", dataset)
 
 
 if __name__ == '__main__':
@@ -203,12 +208,17 @@ if __name__ == '__main__':
     features = dataset["data"]
     labels = dataset["target"]
 
+    feature_names = np.asarray(dataset["feature_names"])
+    target_names = np.asarray(dataset["target_names"])
+
     dataset = np.hstack([features, labels.reshape(-1, 1)])
 
     training_set, test_set, validation_set = split_dataset_using_shuffle(dataset, dataset_ratio_for_training=0.6)
+    training_set.label_names = target_names
+    training_set.feature_names = feature_names
 
     tree = DecisionTreeClassifier.from_dataset(training_set)
     success = tree.evaluate_tree(validation_set)
 
-    # tree.draw()
+    tree.draw(training_set)
     print()
