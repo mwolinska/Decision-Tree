@@ -9,9 +9,15 @@ class DecisionTreeClassifier:
         self.tree = None
 
     @classmethod
-    def from_dataset(cls, dataset: np.ndarray):
+    def from_dataset(cls, dataset: np.ndarray): # in many libraries this is called fit. because fit decision tree to dataset
         decision_tree = cls()
         tree = decision_tree.build_tree(dataset)
+        decision_tree.tree = tree
+        return decision_tree
+
+    @classmethod
+    def from_tree(cls, tree: Node):
+        decision_tree = cls()
         decision_tree.tree = tree
         return decision_tree
 
@@ -150,3 +156,18 @@ class DecisionTreeClassifier:
             else:
                 next_node = tree.right
                 return self._recursive_predict(sample_point, next_node)
+
+    def evaluate_tree(self, labeled_test_set: np.ndarray):
+        data_points, true_labels = labeled_test_set[:, :-1], labeled_test_set[:, -1]
+        dataset_size = len(true_labels)
+        correct_prediction_count = 0
+
+        predicted_labels = self.predict(data_points)
+
+        for i in range(dataset_size):
+            if true_labels[i] == predicted_labels[i]:
+                correct_prediction_count += 1
+
+        success_ratio = correct_prediction_count / dataset_size
+
+        return success_ratio
