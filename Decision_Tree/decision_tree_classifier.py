@@ -1,5 +1,6 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, List
 
+import graphviz
 import numpy as np
 
 from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split
@@ -7,11 +8,18 @@ from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split
 class DecisionTreeClassifier:
     def __init__(self):
         self.tree = None
+        self.tree_visual = graphviz.Digraph()
 
     @classmethod
-    def from_dataset(cls, dataset: np.ndarray):
+    def from_dataset(cls, dataset: np.ndarray): # in many libraries this is called fit. because fit decision tree to dataset
         decision_tree = cls()
         tree = decision_tree.build_tree(dataset)
+        decision_tree.tree = tree
+        return decision_tree
+
+    @classmethod
+    def from_tree(cls, tree: Node):
+        decision_tree = cls()
         decision_tree.tree = tree
         return decision_tree
 
@@ -127,3 +135,57 @@ class DecisionTreeClassifier:
             entropy += (- ratio_of_instances * np.log2(ratio_of_instances))
 
         return entropy
+
+    def predict(self, sample_points: np.ndarray) -> List[float]:
+        predictions = []
+        tuple_of_sample_size = sample_points.shape
+        if len(tuple_of_sample_size) == 1:
+            predictions.append(self._recursive_predict(sample_points, self.tree))
+        else:
+            for point in sample_points:
+                predictions.append(self._recursive_predict(point, self.tree))
+        return predictions
+
+    def _recursive_predict(self, sample_point: np.ndarray, tree: Union[Node, Leaf]) -> Union[float, Node]:
+        if isinstance(tree, Leaf):
+            return tree.leaf_value
+        else:
+            feature_value_from_point = sample_point[tree.split_condition.feature]
+
+            if tree.split_condition.operator(feature_value_from_point):
+                next_node = tree.left
+                return self._recursive_predict(sample_point, next_node)
+            else:
+                next_node = tree.right
+                return self._recursive_predict(sample_point, next_node)
+
+    def evaluate_tree(self, labeled_test_set: np.ndarray):
+        data_points, true_labels = labeled_test_set[:, :-1], labeled_test_set[:, -1]
+        dataset_size = len(true_labels)
+        correct_prediction_count = 0
+
+        predicted_labels = self.predict(data_points)
+
+        for i in range(dataset_size):
+            if true_labels[i] == predicted_labels[i]:
+                correct_prediction_count += 1
+
+        success_ratio = correct_prediction_count / dataset_size
+
+        return success_ratio
+
+    def draw(self):
+        self.assign_nodes_to_visual(self.tree, '')
+        self.tree_visual.view(filename="tree_visual")
+
+    def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str):
+        if isinstance(tree, Leaf):
+            self.tree_visual.node(node_name, str(tree.leaf_value))
+        else:
+            operator = tree.split_condition.operator_string
+            node_label = f"{tree.split_condition.feature} {operator} {tree.split_condition.split_value}"
+
+            self.tree_visual.node(node_name, label=node_label)
+            self.tree_visual.edge(node_name, node_name + "-L", label="True")
+            self.tree_visual.edge(node_name, node_name + "-R", label="False")
+            return self.assign_nodes_to_visual(tree.left, node_name + "-L"), self.assign_nodes_to_visual(tree.right, node_name + "-R")
