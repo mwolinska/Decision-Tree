@@ -16,7 +16,7 @@ class Dataset(object):
             feature_name = self.feature_names[feature_idx]
             return feature_name
         else:
-            raise NotImplementedError("Feature names are not defined in this dataset")
+            return feature_idx
 
     def get_label(self, label_idx: int) -> str:
         if self.label_names is not None:
