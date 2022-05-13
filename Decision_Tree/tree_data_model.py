@@ -1,5 +1,41 @@
 from typing import Any, Union, Callable, Optional
 
+import numpy as np
+
+
+class Dataset(object):
+    def __init__(self):
+        self.data: Optional[np.ndarray] = None
+        self.labels: Optional[np.ndarray] = None
+
+        self.feature_names: Optional[np.ndarray] = None
+        self.label_names: Optional[np.ndarray] = None
+
+    def get_feature(self, feature_idx: int) -> str:
+        if self.feature_names is not None:
+            feature_name = self.feature_names[feature_idx]
+            return feature_name
+        else:
+            raise NotImplementedError("Feature names are not defined in this dataset")
+
+    @classmethod
+    def from_array(cls,
+        dataset: np.ndarray,
+        feature_labels: Optional[np.ndarray] = None,
+        class_labels: Optional[np.ndarray] = None):
+
+        new_dataset = Dataset()
+
+        new_dataset.data = dataset[:, :-1]
+        new_dataset.labels = dataset[:, -1]
+
+        if feature_labels is not None:
+            new_dataset.feature_names = feature_labels
+        if feature_labels is not None:
+            new_dataset.label_names = class_labels
+
+        return new_dataset
+
 class Leaf(object):
     def __init__(self, leaf_value: Any):
         self.leaf_value = leaf_value
