@@ -23,6 +23,20 @@ class SplitCondition(object):
         elif self.operator == self.split_value.__gt__:
             return ">"
 
+    def set_operator(self, operator_as_string: str):
+        if operator_as_string == "==":
+            self.operator = self.split_value.__eq__
+        elif operator_as_string == "<=":
+            self.operator = self.split_value.__le__
+        elif operator_as_string == "<":
+            self.operator = self.split_value.__lt__
+        elif operator_as_string == ">=":
+            self.operator = self.split_value.__ge__
+        elif operator_as_string == ">":
+            self.operator = self.split_value.__gt__
+        else:
+            raise NotImplementedError("This operator is not implemented")
+
 class Node(object):
     def __init__(self, split_condition: SplitCondition, left: Union["Node", Leaf], right: Union["Node", Leaf]):
         self.split_condition = split_condition

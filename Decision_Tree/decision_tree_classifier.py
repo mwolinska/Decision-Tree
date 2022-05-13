@@ -1,5 +1,6 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, List
 
+import graphviz
 import numpy as np
 
 from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split
@@ -7,6 +8,7 @@ from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split
 class DecisionTreeClassifier:
     def __init__(self):
         self.tree = None
+        self.tree_visual = graphviz.Digraph()
 
     @classmethod
     def from_dataset(cls, dataset: np.ndarray): # in many libraries this is called fit. because fit decision tree to dataset
@@ -171,3 +173,19 @@ class DecisionTreeClassifier:
         success_ratio = correct_prediction_count / dataset_size
 
         return success_ratio
+
+    def draw(self):
+        self.assign_nodes_to_visual(self.tree, '')
+        self.tree_visual.view(filename="tree_visual")
+
+    def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str):
+        if isinstance(tree, Leaf):
+            self.tree_visual.node(node_name, str(tree.leaf_value))
+        else:
+            operator = tree.split_condition.operator_string
+            node_label = f"{tree.split_condition.feature} {operator} {tree.split_condition.split_value}"
+
+            self.tree_visual.node(node_name, label=node_label)
+            self.tree_visual.edge(node_name, node_name + "-L", label="True")
+            self.tree_visual.edge(node_name, node_name + "-R", label="False")
+            return self.assign_nodes_to_visual(tree.left, node_name + "-L"), self.assign_nodes_to_visual(tree.right, node_name + "-R")
