@@ -4,9 +4,9 @@ import numpy as np
 
 
 class Dataset(object):
-    def __init__(self):
-        self.data: Optional[np.ndarray] = None
-        self.labels: Optional[np.ndarray] = None
+    def __init__(self, feature_data: np.ndarray = None, labels: np.ndarray = None):
+        self.feature_data: Optional[np.ndarray] = feature_data
+        self.labels: Optional[np.ndarray] = labels
 
         self.feature_names: Optional[np.ndarray] = None
         self.label_names: Optional[np.ndarray] = None
@@ -26,7 +26,7 @@ class Dataset(object):
 
         new_dataset = Dataset()
 
-        new_dataset.data = dataset[:, :-1]
+        new_dataset.feature_data = dataset[:, :-1]
         new_dataset.labels = dataset[:, -1]
 
         if feature_labels is not None:
