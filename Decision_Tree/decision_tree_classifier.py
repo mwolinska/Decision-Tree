@@ -9,9 +9,15 @@ class DecisionTreeClassifier:
         self.tree = None
 
     @classmethod
-    def from_dataset(cls, dataset: np.ndarray):
+    def from_dataset(cls, dataset: np.ndarray): # in many libraries this is called fit. because fit decision tree to dataset
         decision_tree = cls()
         tree = decision_tree.build_tree(dataset)
+        decision_tree.tree = tree
+        return decision_tree
+
+    @classmethod
+    def from_tree(cls, tree: Node):
+        decision_tree = cls()
         decision_tree.tree = tree
         return decision_tree
 
