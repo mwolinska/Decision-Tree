@@ -127,3 +127,26 @@ class DecisionTreeClassifier:
             entropy += (- ratio_of_instances * np.log2(ratio_of_instances))
 
         return entropy
+
+    def predict(self, sample_points: np.ndarray) -> List[float]:
+        predictions = []
+        tuple_of_sample_size = sample_points.shape
+        if len(tuple_of_sample_size) == 1:
+            predictions.append(self._recursive_predict(sample_points, self.tree))
+        else:
+            for point in sample_points:
+                predictions.append(self._recursive_predict(point, self.tree))
+        return predictions
+
+    def _recursive_predict(self, sample_point: np.ndarray, tree: Union[Node, Leaf]) -> Union[float, Node]:
+        if isinstance(tree, Leaf):
+            return tree.leaf_value
+        else:
+            feature_value_from_point = sample_point[tree.split_condition.feature]
+
+            if tree.split_condition.operator(feature_value_from_point):
+                next_node = tree.left
+                return self._recursive_predict(sample_point, next_node)
+            else:
+                next_node = tree.right
+                return self._recursive_predict(sample_point, next_node)
