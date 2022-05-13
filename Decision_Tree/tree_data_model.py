@@ -18,6 +18,13 @@ class Dataset(object):
         else:
             raise NotImplementedError("Feature names are not defined in this dataset")
 
+    def get_label(self, label_idx: int) -> str:
+        if self.label_names is not None:
+            label = self.label_names[label_idx]
+            return label
+        else:
+            return label_idx
+
     @classmethod
     def from_array(cls,
         dataset: np.ndarray,
