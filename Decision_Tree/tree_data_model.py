@@ -4,9 +4,9 @@ import numpy as np
 
 
 class Dataset(object):
-    def __init__(self):
-        self.data: Optional[np.ndarray] = None
-        self.labels: Optional[np.ndarray] = None
+    def __init__(self, feature_data: np.ndarray = None, labels: np.ndarray = None):
+        self.feature_data: Optional[np.ndarray] = feature_data
+        self.labels: Optional[np.ndarray] = labels
 
         self.feature_names: Optional[np.ndarray] = None
         self.label_names: Optional[np.ndarray] = None
@@ -16,7 +16,14 @@ class Dataset(object):
             feature_name = self.feature_names[feature_idx]
             return feature_name
         else:
-            raise NotImplementedError("Feature names are not defined in this dataset")
+            return feature_idx
+
+    def get_label(self, label_idx: int) -> str:
+        if self.label_names is not None:
+            label = self.label_names[label_idx]
+            return label
+        else:
+            return label_idx
 
     @classmethod
     def from_array(cls,
@@ -26,7 +33,7 @@ class Dataset(object):
 
         new_dataset = Dataset()
 
-        new_dataset.data = dataset[:, :-1]
+        new_dataset.feature_data = dataset[:, :-1]
         new_dataset.labels = dataset[:, -1]
 
         if feature_labels is not None:

@@ -49,3 +49,8 @@ Once a run is completed, the decision tree will be saved under "tree_visual.pdf"
 project directory. The tree generated using the run above would look like this:
 
 <img src="./Images/SampleDecisionTree/tree_visual_test.png" height="500">
+
+If the feature and label names are added to the training dataset, those are included in
+the tree visualisation for greater clarity.
+
+<img src="./Images/SampleDecisionTree/tree_visual_with_names.png" height="500">
