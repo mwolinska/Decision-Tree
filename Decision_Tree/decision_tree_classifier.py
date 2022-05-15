@@ -3,7 +3,9 @@ from typing import Tuple, Union, List
 import graphviz
 import numpy as np
 
-from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split
+from Decision_Tree.dataset_processing import split_dataset_using_shuffle
+from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split, Dataset
+
 
 class DecisionTreeClassifier:
     def __init__(self):
@@ -11,7 +13,7 @@ class DecisionTreeClassifier:
         self.tree_visual = graphviz.Digraph()
 
     @classmethod
-    def from_dataset(cls, dataset: np.ndarray): # in many libraries this is called fit. because fit decision tree to dataset
+    def from_dataset(cls, dataset: Dataset): # in many libraries this is called fit. because fit decision tree to dataset
         decision_tree = cls()
         tree = decision_tree.build_tree(dataset)
         decision_tree.tree = tree
@@ -23,10 +25,10 @@ class DecisionTreeClassifier:
         decision_tree.tree = tree
         return decision_tree
 
-    def build_tree(self, dataset: np.ndarray) -> Union[Leaf, Node]:
+    def build_tree(self, dataset: Dataset) -> Union[Leaf, Node]:
         is_pure = self.is_pure(dataset)
         if is_pure:
-            leaf = Leaf(leaf_value=dataset[0, -1])
+            leaf = Leaf(leaf_value=dataset.labels[0])
             return leaf
         else:
             split_condition = self.find_split_condition(dataset)
@@ -38,30 +40,31 @@ class DecisionTreeClassifier:
             )
             return my_node
 
-    def split_dataset(self, dataset: np.ndarray, split_condition: SplitCondition) -> Tuple[np.ndarray, np.ndarray]:
+    def split_dataset(self, dataset: Dataset, split_condition: SplitCondition) -> Tuple[Dataset, Dataset]:
         feature_column = split_condition.feature
 
-        condition_mask = split_condition.operator(dataset[:, feature_column])
-        dataset_left = dataset[condition_mask] # relationship == True branch
-        dataset_right = dataset[~condition_mask] # relationship == False branch
+        condition_mask = split_condition.operator(dataset.feature_data[:, feature_column])
+        dataset_left = Dataset(feature_data=dataset.feature_data[condition_mask],
+                               labels=dataset.labels[condition_mask]) # relationship == True branch
+        dataset_right = Dataset(feature_data=dataset.feature_data[~condition_mask],
+                                labels=dataset.labels[~condition_mask]) # relationship == False branch
 
         return dataset_left, dataset_right
 
     @staticmethod
-    def is_pure(dataset: np.ndarray) -> bool:
-        dataset_labels = dataset[:, -1]
-        unique_labels = np.unique(dataset_labels)
+    def is_pure(dataset: Dataset) -> bool:
+        unique_labels = np.unique(dataset.labels)
 
         if len(unique_labels) <= 1:
             return True
         else:
             return False
 
-    def find_split_condition(self, dataset: np.ndarray) -> SplitCondition:
+    def find_split_condition(self, dataset: Dataset) -> SplitCondition:
         information_gain = - np.inf
         split_condition = None
 
-        for feature in range(dataset.shape[1] - 1):
+        for feature in range(dataset.feature_data.shape[1] - 1):
             split = self.get_dataset_split(dataset, feature)
 
             if split.information_gain > information_gain:
@@ -69,12 +72,12 @@ class DecisionTreeClassifier:
                 split_condition = split.split_condition
         return split_condition
 
-    def get_dataset_split(self, dataset: np.ndarray, feature) -> Split: # returns split on dataset on a given feature
+    def get_dataset_split(self, dataset: Dataset, feature: int) -> Split: # returns split on dataset on a given feature
 
         information_gain = -np.inf
         best_feature_split = None
 
-        unique_features = np.unique(dataset[:, feature])
+        unique_features = np.unique(dataset.feature_data[:, feature])
         split_values = self.get_split_values(unique_features)
 
         for split_value in split_values:
@@ -95,7 +98,7 @@ class DecisionTreeClassifier:
             split_values = (array_of_differences / 2) + lower_bound
             return split_values
 
-    def get_feature_split(self, dataset: np.ndarray, feature: int, split_value: float) -> Split:
+    def get_feature_split(self, dataset: Dataset, feature: int, split_value: float) -> Split:
         feature_split_condition = SplitCondition(
             feature=feature,
             split_value=split_value,
@@ -109,28 +112,30 @@ class DecisionTreeClassifier:
                               information_gain=feature_information_gain)
         return feature_split
 
-    def information_gain(self, dataset: np.ndarray, feature: int, split_value: float) -> float:
+    def information_gain(self, dataset: Dataset, feature: int, split_value: float) -> float:
         # get unique class labels
         dataset_entropy = self.entropy(dataset)
 
         # create sub-dataset
-        dataset_split_value_mask = dataset[:, feature] <= split_value
-        dataset_cut = dataset[dataset_split_value_mask]
-        dataset_cut_2 = dataset[~dataset_split_value_mask]
+        dataset_split_value_mask = dataset.feature_data[:, feature] <= split_value
+        dataset_cut = Dataset(feature_data=dataset.feature_data[dataset_split_value_mask],
+                              labels=dataset.labels[dataset_split_value_mask])
+        dataset_cut_2 = Dataset(feature_data=dataset.feature_data[~dataset_split_value_mask],
+                              labels=dataset.labels[~dataset_split_value_mask])
 
         feature_entropy_at_split = self.entropy(dataset_cut)
         feature_entropy_at_split_2 = self.entropy(dataset_cut_2)
 
-        information_gain = dataset_entropy - (len(dataset_cut)/len(dataset)*feature_entropy_at_split + len(dataset_cut_2)/len(dataset)*feature_entropy_at_split_2)
+        information_gain = dataset_entropy - (len(dataset_cut.feature_data) / len(dataset.feature_data) * feature_entropy_at_split + len(dataset_cut_2.feature_data) / len(dataset.feature_data) * feature_entropy_at_split_2)
 
         return information_gain
 
-    def entropy(self, dataset: np.ndarray) -> float:
-        unique_labels = np.unique(dataset[:, -1])
+    def entropy(self, dataset: Dataset) -> float:
+        unique_labels = np.unique(dataset.labels)
         entropy = 0
-        total_samples = dataset.shape[0]
+        total_samples = dataset.feature_data.shape[0]
         for label in unique_labels:
-            n_instances_of_label = np.count_nonzero(dataset[:, -1] == label)
+            n_instances_of_label = np.count_nonzero(dataset.labels == label)
             ratio_of_instances = n_instances_of_label / total_samples
             entropy += (- ratio_of_instances * np.log2(ratio_of_instances))
 
@@ -159,8 +164,8 @@ class DecisionTreeClassifier:
                 next_node = tree.right
                 return self._recursive_predict(sample_point, next_node)
 
-    def evaluate_tree(self, labeled_test_set: np.ndarray):
-        data_points, true_labels = labeled_test_set[:, :-1], labeled_test_set[:, -1]
+    def evaluate_tree(self, labeled_test_set: Dataset):
+        data_points, true_labels = labeled_test_set.feature_data, labeled_test_set.labels
         dataset_size = len(true_labels)
         correct_prediction_count = 0
 
@@ -174,18 +179,46 @@ class DecisionTreeClassifier:
 
         return success_ratio
 
-    def draw(self):
-        self.assign_nodes_to_visual(self.tree, '')
+    def draw(self, dataset: Dataset):
+        self.assign_nodes_to_visual(self.tree, '', dataset)
         self.tree_visual.view(filename="tree_visual")
 
-    def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str):
+    def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str, dataset: Dataset):
         if isinstance(tree, Leaf):
-            self.tree_visual.node(node_name, str(tree.leaf_value))
+            class_label = dataset.get_label(int(tree.leaf_value))
+            self.tree_visual.node(node_name, "Class label: " + str(class_label))
         else:
             operator = tree.split_condition.operator_string
-            node_label = f"{tree.split_condition.feature} {operator} {tree.split_condition.split_value}"
+
+            feature_name = dataset.get_feature(tree.split_condition.feature)
+
+            node_label = f"Feature {feature_name} {operator} {tree.split_condition.split_value}"
 
             self.tree_visual.node(node_name, label=node_label)
             self.tree_visual.edge(node_name, node_name + "-L", label="True")
             self.tree_visual.edge(node_name, node_name + "-R", label="False")
-            return self.assign_nodes_to_visual(tree.left, node_name + "-L"), self.assign_nodes_to_visual(tree.right, node_name + "-R")
+            return self.assign_nodes_to_visual(tree.left, node_name + "-L", dataset), \
+                   self.assign_nodes_to_visual(tree.right, node_name + "-R", dataset)
+
+
+if __name__ == '__main__':
+    import numpy as np
+    from sklearn.datasets import load_iris
+    dataset = load_iris()
+    features = dataset["data"]
+    labels = dataset["target"]
+
+    feature_names = np.asarray(dataset["feature_names"])
+    target_names = np.asarray(dataset["target_names"])
+
+    dataset = np.hstack([features, labels.reshape(-1, 1)])
+
+    training_set, test_set, validation_set = split_dataset_using_shuffle(dataset, dataset_ratio_for_training=0.6)
+    training_set.label_names = target_names
+    training_set.feature_names = feature_names
+
+    tree = DecisionTreeClassifier.from_dataset(training_set)
+    success = tree.evaluate_tree(validation_set)
+
+    tree.draw(training_set)
+    print()
