@@ -205,6 +205,97 @@ class DecisionTreeClassifier:
             return self.assign_nodes_to_visual(tree.left, node_name + "-L", dataset), \
                    self.assign_nodes_to_visual(tree.right, node_name + "-R", dataset)
 
+    def prune(self, training_set: Dataset, validation_set: Dataset):
+        pruned_tree = copy.deepcopy(self)
+        best_success_ratio = self.evaluate_tree(validation_set)
+
+        for depth in range(self.max_depth - 1, 1, -1):
+            paths_at_depth = self.paths_to_nodes_at_depth(pruned_tree.tree, depth)
+            for path in paths_at_depth:
+                pruning_test_tree = copy.deepcopy(pruned_tree)
+                tree_copy_for_replacement = copy.deepcopy(pruned_tree.tree)
+                leaf_value = pruned_tree.find_value_to_replace_node(training_set, path)
+                pruning_test_tree.tree = pruned_tree.replace_node_with_leaf(tree_copy_for_replacement, path, leaf_value)
+                pruning_success_score = pruning_test_tree.evaluate_tree(validation_set)
+                print(f"Best success ratio is {best_success_ratio} and prunning success ratio is {pruning_success_score}")
+                if pruning_success_score >= best_success_ratio:
+                    best_success_ratio = pruning_success_score
+                    pruned_tree = pruning_test_tree
+
+        return pruned_tree
+
+    def paths_to_nodes_at_depth(self, tree: Node, depth: int, path: Optional[List] = None):
+        if path is None:
+            path = []
+
+        if tree.depth == depth and isinstance(tree, Node):
+            return [path]
+        elif isinstance(tree, Leaf):
+            return None
+        else:
+            left_branch = self.paths_to_nodes_at_depth(tree.left, depth, path + ["L"])
+            right_branch = self.paths_to_nodes_at_depth(tree.right, depth, path + ["R"])
+            all_elements = []
+            if left_branch is not None:
+                all_elements += left_branch
+            if right_branch is not None:
+                all_elements += right_branch
+
+            return all_elements
+
+    def replace_node_with_leaf(self, tree: Node, path: List[str], leaf_value: Any) -> Node:
+        node = tree
+        path_until_last_step = path[:-1]
+        last_step = path[-1]
+        for el in path_until_last_step:
+            if el == "L":
+                node = node.left
+            elif el == "R":
+                node = node.right
+
+        if last_step == "L":
+            node.left = Leaf(leaf_value)
+        elif last_step == "R":
+            node.right = Leaf(leaf_value)
+
+        return tree
+
+    def node_from_path(self, path: List[str]):
+        node = self.tree
+        for el in path:
+            if el == "L":
+                node = node.left
+            elif el == "R":
+                node = node.right
+        return node
+
+    def find_value_to_replace_node(self, dataset: Dataset, path_to_node: List[str]):
+        labels_count_at_node = self.count_labels_on_split_condition(dataset, path_to_node)
+
+        index_with_max_count = labels_count_at_node[1].argmax()
+        label_with_max_count = labels_count_at_node[0][index_with_max_count]
+        return label_with_max_count
+
+    def count_labels_on_split_condition(self, dataset: Dataset, path_to_node: List[str]):
+        dataset_at_node = self.dataset_at_node(dataset, path_to_node)
+        labels_count = np.unique(dataset_at_node.labels, return_counts=True)
+
+        return labels_count
+
+    def dataset_at_node(self, dataset: Dataset, path: List[str]) -> Dataset:
+        node = self.tree
+
+        for el in path:
+            left_dataset, right_dataset = self.split_dataset(dataset, node.split_condition)
+            if el == "L":
+                node = node.left
+                dataset = left_dataset
+            elif el == "R":
+                node = node.right
+                dataset = right_dataset
+
+        return dataset
+
 
 if __name__ == '__main__':
     import numpy as np
