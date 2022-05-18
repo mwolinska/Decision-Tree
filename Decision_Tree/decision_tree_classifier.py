@@ -1,4 +1,5 @@
-from typing import Tuple, Union, List
+import copy
+from typing import Tuple, Union, List, Optional, Any
 
 import graphviz
 import numpy as np
@@ -11,11 +12,12 @@ class DecisionTreeClassifier:
     def __init__(self):
         self.tree = None
         self.tree_visual = graphviz.Digraph()
+        self.max_depth = 0
 
     @classmethod
-    def from_dataset(cls, dataset: Dataset): # in many libraries this is called fit. because fit decision tree to dataset
+    def from_dataset(cls, training_dataset: Dataset): # in many libraries this is called fit. because fit decision tree to dataset
         decision_tree = cls()
-        tree = decision_tree.build_tree(dataset)
+        tree = decision_tree.build_tree(training_dataset)
         decision_tree.tree = tree
         return decision_tree
 
@@ -25,63 +27,66 @@ class DecisionTreeClassifier:
         decision_tree.tree = tree
         return decision_tree
 
-    def build_tree(self, dataset: Dataset) -> Union[Leaf, Node]:
-        is_pure = self.is_pure(dataset)
+    def build_tree(self, training_dataset: Dataset, depth: int = 0) -> Union[Leaf, Node]:
+        is_pure = self.is_pure(training_dataset)
         if is_pure:
-            leaf = Leaf(leaf_value=dataset.labels[0])
+            leaf = Leaf(leaf_value=training_dataset.labels[0], depth=depth)
+            if depth > self.max_depth:
+                self.max_depth = depth
             return leaf
         else:
-            split_condition = self.find_split_condition(dataset)
-            dataset_left, dataset_right = self.split_dataset(dataset, split_condition)
+            split_condition = self.find_split_condition(training_dataset)
+            dataset_left, dataset_right = self.split_dataset(training_dataset, split_condition)
             my_node = Node(
-                left=self.build_tree(dataset_left),
-                right=self.build_tree(dataset_right),
+                left=self.build_tree(dataset_left, depth + 1),
+                right=self.build_tree(dataset_right, depth + 1),
                 split_condition=split_condition,
+                depth=depth,
             )
             return my_node
 
-    def split_dataset(self, dataset: Dataset, split_condition: SplitCondition) -> Tuple[Dataset, Dataset]:
+    def split_dataset(self, training_dataset: Dataset, split_condition: SplitCondition) -> Tuple[Dataset, Dataset]:
         feature_column = split_condition.feature
 
-        condition_mask = split_condition.operator(dataset.feature_data[:, feature_column])
-        dataset_left = Dataset(feature_data=dataset.feature_data[condition_mask],
-                               labels=dataset.labels[condition_mask]) # relationship == True branch
-        dataset_right = Dataset(feature_data=dataset.feature_data[~condition_mask],
-                                labels=dataset.labels[~condition_mask]) # relationship == False branch
+        condition_mask = split_condition.operator(training_dataset.feature_data[:, feature_column])
+        dataset_left = Dataset(feature_data=training_dataset.feature_data[condition_mask],
+                               labels=training_dataset.labels[condition_mask]) # relationship == True branch
+        dataset_right = Dataset(feature_data=training_dataset.feature_data[~condition_mask],
+                                labels=training_dataset.labels[~condition_mask]) # relationship == False branch
 
         return dataset_left, dataset_right
 
     @staticmethod
-    def is_pure(dataset: Dataset) -> bool:
-        unique_labels = np.unique(dataset.labels)
+    def is_pure(training_dataset: Dataset) -> bool:
+        unique_labels = np.unique(training_dataset.labels)
 
         if len(unique_labels) <= 1:
             return True
         else:
             return False
 
-    def find_split_condition(self, dataset: Dataset) -> SplitCondition:
+    def find_split_condition(self, training_dataset: Dataset) -> SplitCondition:
         information_gain = - np.inf
         split_condition = None
 
-        for feature in range(dataset.feature_data.shape[1] - 1):
-            split = self.get_dataset_split(dataset, feature)
+        for feature in range(training_dataset.feature_data.shape[1] - 1):
+            split = self.get_dataset_split(training_dataset, feature)
 
             if split.information_gain > information_gain:
                 information_gain = split.information_gain
                 split_condition = split.split_condition
         return split_condition
 
-    def get_dataset_split(self, dataset: Dataset, feature: int) -> Split: # returns split on dataset on a given feature
+    def get_dataset_split(self, training_dataset: Dataset, feature: int) -> Split: # returns split on dataset on a given feature
 
         information_gain = -np.inf
         best_feature_split = None
 
-        unique_features = np.unique(dataset.feature_data[:, feature])
+        unique_features = np.unique(training_dataset.feature_data[:, feature])
         split_values = self.get_split_values(unique_features)
 
         for split_value in split_values:
-            feature_split = self.get_feature_split(dataset, feature, split_value)
+            feature_split = self.get_feature_split(training_dataset, feature, split_value)
 
             if feature_split.information_gain > information_gain:
                 information_gain = feature_split.information_gain
@@ -98,7 +103,7 @@ class DecisionTreeClassifier:
             split_values = (array_of_differences / 2) + lower_bound
             return split_values
 
-    def get_feature_split(self, dataset: Dataset, feature: int, split_value: float) -> Split:
+    def get_feature_split(self, training_dataset: Dataset, feature: int, split_value: float) -> Split:
         feature_split_condition = SplitCondition(
             feature=feature,
             split_value=split_value,
@@ -106,36 +111,36 @@ class DecisionTreeClassifier:
         operator = "<="
         feature_split_condition.set_operator(operator)
 
-        feature_information_gain = self.information_gain(dataset, feature, split_value)
+        feature_information_gain = self.information_gain(training_dataset, feature, split_value)
 
         feature_split = Split(split_condition=feature_split_condition,
                               information_gain=feature_information_gain)
         return feature_split
 
-    def information_gain(self, dataset: Dataset, feature: int, split_value: float) -> float:
+    def information_gain(self, training_dataset: Dataset, feature: int, split_value: float) -> float:
         # get unique class labels
-        dataset_entropy = self.entropy(dataset)
+        dataset_entropy = self.entropy(training_dataset)
 
         # create sub-dataset
-        dataset_split_value_mask = dataset.feature_data[:, feature] <= split_value
-        dataset_cut = Dataset(feature_data=dataset.feature_data[dataset_split_value_mask],
-                              labels=dataset.labels[dataset_split_value_mask])
-        dataset_cut_2 = Dataset(feature_data=dataset.feature_data[~dataset_split_value_mask],
-                              labels=dataset.labels[~dataset_split_value_mask])
+        dataset_split_value_mask = training_dataset.feature_data[:, feature] <= split_value
+        dataset_cut = Dataset(feature_data=training_dataset.feature_data[dataset_split_value_mask],
+                              labels=training_dataset.labels[dataset_split_value_mask])
+        dataset_cut_2 = Dataset(feature_data=training_dataset.feature_data[~dataset_split_value_mask],
+                                labels=training_dataset.labels[~dataset_split_value_mask])
 
         feature_entropy_at_split = self.entropy(dataset_cut)
         feature_entropy_at_split_2 = self.entropy(dataset_cut_2)
 
-        information_gain = dataset_entropy - (len(dataset_cut.feature_data) / len(dataset.feature_data) * feature_entropy_at_split + len(dataset_cut_2.feature_data) / len(dataset.feature_data) * feature_entropy_at_split_2)
+        information_gain = dataset_entropy - (len(dataset_cut.feature_data) / len(training_dataset.feature_data) * feature_entropy_at_split + len(dataset_cut_2.feature_data) / len(training_dataset.feature_data) * feature_entropy_at_split_2)
 
         return information_gain
 
-    def entropy(self, dataset: Dataset) -> float:
-        unique_labels = np.unique(dataset.labels)
+    def entropy(self, training_dataset: Dataset) -> float:
+        unique_labels = np.unique(training_dataset.labels)
         entropy = 0
-        total_samples = dataset.feature_data.shape[0]
+        total_samples = training_dataset.feature_data.shape[0]
         for label in unique_labels:
-            n_instances_of_label = np.count_nonzero(dataset.labels == label)
+            n_instances_of_label = np.count_nonzero(training_dataset.labels == label)
             ratio_of_instances = n_instances_of_label / total_samples
             entropy += (- ratio_of_instances * np.log2(ratio_of_instances))
 
