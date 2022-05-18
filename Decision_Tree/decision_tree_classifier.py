@@ -184,9 +184,9 @@ class DecisionTreeClassifier:
 
         return success_ratio
 
-    def draw(self, dataset: Dataset):
+    def draw(self, dataset: Dataset, file_name: str = "tree_visual"):
         self.assign_nodes_to_visual(self.tree, '', dataset)
-        self.tree_visual.view(filename="tree_visual")
+        self.tree_visual.view(filename=file_name)
 
     def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str, dataset: Dataset):
         if isinstance(tree, Leaf):
