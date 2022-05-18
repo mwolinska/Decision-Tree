@@ -16,14 +16,14 @@ class Dataset(object):
             feature_name = self.feature_names[feature_idx]
             return feature_name
         else:
-            return feature_idx
+            return str(feature_idx)
 
     def get_label(self, label_idx: int) -> str:
         if self.label_names is not None:
             label = self.label_names[label_idx]
             return label
         else:
-            return label_idx
+            return str(label_idx)
 
     @classmethod
     def from_array(cls,
