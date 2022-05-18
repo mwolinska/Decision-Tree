@@ -58,13 +58,13 @@ class SplitCondition(object):
         if self.operator == self.split_value.__eq__:
             return "="
         elif self.operator == self.split_value.__le__:
-            return "<="
-        elif self.operator == self.split_value.__ge__:
             return ">="
+        elif self.operator == self.split_value.__ge__:
+            return "<="
         elif self.operator == self.split_value.__lt__:
-            return "<"
-        elif self.operator == self.split_value.__gt__:
             return ">"
+        elif self.operator == self.split_value.__gt__:
+            return "<"
 
     def set_operator(self, operator_as_string: str):
         if operator_as_string == "==":
