@@ -44,8 +44,9 @@ class Dataset(object):
         return new_dataset
 
 class Leaf(object):
-    def __init__(self, leaf_value: Any):
+    def __init__(self, leaf_value: Any, depth: Optional[int] = None):
         self.leaf_value = leaf_value
+        self.depth = depth
 
 class SplitCondition(object):
     def __init__(self, feature: int, split_value: Union[int, float, bool, str], operator: Optional[Callable] = None):
@@ -81,10 +82,17 @@ class SplitCondition(object):
             raise NotImplementedError("This operator is not implemented")
 
 class Node(object):
-    def __init__(self, split_condition: SplitCondition, left: Union["Node", Leaf], right: Union["Node", Leaf]):
+    def __init__(self,
+        split_condition: SplitCondition,
+        left: Union["Node", Leaf],
+        right: Union["Node", Leaf],
+        depth: Optional[int] = None,
+        ):
+
         self.split_condition = split_condition
         self.left: Union["Node", Leaf] = left
         self.right: Union["Node", Leaf] = right
+        self.depth = depth
 
 class Split(object):
     def __init__(self, split_condition: SplitCondition, information_gain: float):
