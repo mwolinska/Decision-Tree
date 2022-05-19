@@ -94,7 +94,8 @@ class DecisionTreeClassifier:
 
         return best_feature_split
 
-    def get_split_values(self, unique_features: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def get_split_values(unique_features: np.ndarray) -> np.ndarray:
         if len(unique_features) == 1:
             return unique_features
         else:
@@ -135,6 +136,7 @@ class DecisionTreeClassifier:
 
         return information_gain
 
+    @staticmethod
     def entropy(self, training_dataset: Dataset) -> float:
         unique_labels = np.unique(training_dataset.labels)
         entropy = 0
@@ -243,7 +245,8 @@ class DecisionTreeClassifier:
 
             return all_elements
 
-    def replace_node_with_leaf(self, tree: Node, path: List[str], leaf_value: Any) -> Node:
+    @staticmethod
+    def replace_node_with_leaf(tree: Node, path: List[str], leaf_value: Any) -> Node:
         node = tree
         path_until_last_step = path[:-1]
         last_step = path[-1]
