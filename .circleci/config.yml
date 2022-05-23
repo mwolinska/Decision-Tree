@@ -28,6 +28,7 @@ workflows:
               only:
                 - master
                 - main
+                - automate_git_releases
 
 
 commands:
