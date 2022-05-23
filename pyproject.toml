@@ -10,7 +10,7 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
 numpy = "^1.22.3"
-graphviz = "^0.2"
+graphviz = "^0.20"
 dill = "^0.3.5"
 
 
@@ -21,4 +21,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-decision_tree = 'Decision_Tree.cli:main'
+decision-tree = 'Decision_Tree.cli:main'
