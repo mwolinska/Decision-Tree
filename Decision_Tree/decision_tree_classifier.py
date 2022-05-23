@@ -4,7 +4,7 @@ from typing import Tuple, Union, List, Optional, Any
 import graphviz
 import numpy as np
 
-from Decision_Tree.dataset_processing import split_dataset_using_shuffle
+from Decision_Tree.dataset_processing import prepare_datasets_from_csv
 from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split, Dataset
 
 
@@ -94,7 +94,8 @@ class DecisionTreeClassifier:
 
         return best_feature_split
 
-    def get_split_values(self, unique_features: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def get_split_values(unique_features: np.ndarray) -> np.ndarray:
         if len(unique_features) == 1:
             return unique_features
         else:
@@ -135,7 +136,8 @@ class DecisionTreeClassifier:
 
         return information_gain
 
-    def entropy(self, training_dataset: Dataset) -> float:
+    @staticmethod
+    def entropy(training_dataset: Dataset) -> float:
         unique_labels = np.unique(training_dataset.labels)
         entropy = 0
         total_samples = training_dataset.feature_data.shape[0]
@@ -217,7 +219,6 @@ class DecisionTreeClassifier:
                 leaf_value = pruned_tree.find_value_to_replace_node(training_set, path)
                 pruning_test_tree.tree = pruned_tree.replace_node_with_leaf(tree_copy_for_replacement, path, leaf_value)
                 pruning_success_score = pruning_test_tree.evaluate_tree(validation_set)
-                print(f"Best success ratio is {best_success_ratio} and prunning success ratio is {pruning_success_score}")
                 if pruning_success_score >= best_success_ratio:
                     best_success_ratio = pruning_success_score
                     pruned_tree = pruning_test_tree
@@ -243,7 +244,8 @@ class DecisionTreeClassifier:
 
             return all_elements
 
-    def replace_node_with_leaf(self, tree: Node, path: List[str], leaf_value: Any) -> Node:
+    @staticmethod
+    def replace_node_with_leaf(tree: Node, path: List[str], leaf_value: Any) -> Node:
         node = tree
         path_until_last_step = path[:-1]
         last_step = path[-1]
@@ -296,25 +298,27 @@ class DecisionTreeClassifier:
 
         return dataset
 
-
-if __name__ == '__main__':
-    import numpy as np
-    from sklearn.datasets import load_iris
-    dataset = load_iris()
-    features = dataset["data"]
-    labels = dataset["target"]
-
-    feature_names = np.asarray(dataset["feature_names"])
-    target_names = np.asarray(dataset["target_names"])
-
-    dataset = np.hstack([features, labels.reshape(-1, 1)])
-
-    training_set, test_set, validation_set = split_dataset_using_shuffle(dataset, dataset_ratio_for_training=0.6)
-    training_set.label_names = target_names
-    training_set.feature_names = feature_names
-
+def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, prune: bool = True, visualise_tree: bool = True):
     tree = DecisionTreeClassifier.from_dataset(training_set)
-    success = tree.evaluate_tree(validation_set)
+    unpruned_score = tree.evaluate_tree(validation_set)
 
-    tree.draw(training_set)
-    print()
+    if prune:
+        pruned_tree = tree.prune(training_set, validation_set)
+        pruned_score = pruned_tree.evaluate_tree(validation_set)
+        print(f"Unpruned score: {unpruned_score}, pruned score: {pruned_score}. performed on validation dataset")
+        if visualise_tree:
+            pruned_tree.draw(training_set, file_name="pruned_tree")
+            tree.draw(training_set)
+
+        return pruned_tree
+
+    elif visualise_tree:
+        tree.draw(training_set)
+
+    print(f"Unpruned score: {unpruned_score}, pruning not performed.")
+    return tree
+
+def main_test_tree(decision_tree: DecisionTreeClassifier, test_set: Dataset):
+    test_set_score = decision_tree.evaluate_tree(test_set)
+    print(f"Decision tree score on unseen data: {test_set_score}")
+    return test_set_score

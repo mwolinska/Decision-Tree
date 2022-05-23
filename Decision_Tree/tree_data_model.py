@@ -4,12 +4,18 @@ import numpy as np
 
 
 class Dataset(object):
-    def __init__(self, feature_data: np.ndarray = None, labels: np.ndarray = None):
-        self.feature_data: Optional[np.ndarray] = feature_data
-        self.labels: Optional[np.ndarray] = labels
+    def __init__(self,
+        feature_data: Optional[np.ndarray] = None,
+        labels: Optional[np.ndarray] = None,
+        feature_names: Optional[np.ndarray] = None,
+        label_names: Optional[np.ndarray] = None
+        ):
 
-        self.feature_names: Optional[np.ndarray] = None
-        self.label_names: Optional[np.ndarray] = None
+        self.feature_data = feature_data
+        self.labels = labels
+
+        self.feature_names = feature_names
+        self.label_names = label_names
 
     def get_feature(self, feature_idx: int) -> str:
         if self.feature_names is not None:
