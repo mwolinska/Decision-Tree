@@ -317,3 +317,8 @@ def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, pr
 
     print(f"Unpruned score: {unpruned_score}, pruning not performed.")
     return tree
+
+def main_test_tree(decision_tree: DecisionTreeClassifier, test_set: Dataset):
+    test_set_score = decision_tree.evaluate_tree(test_set)
+    print(f"Decision tree score on unseen data: {test_set_score}")
+    return test_set_score
