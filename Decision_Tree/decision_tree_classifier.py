@@ -299,12 +299,12 @@ class DecisionTreeClassifier:
 
         return dataset
 
-    def save(self, file_name: str = "decision_tree"):
-        with open(file_name + ".pickle", "wb") as target_file:
+    def save(self, file_name: str = "decision_tree.pickle"):
+        with open(file_name, "wb") as target_file:
             pickle.dump(self, target_file)
 
 def load_decision_tree(file_name: str):
-    with open(file_name + ".pickle", "rb") as target_file:
+    with open(file_name, "rb") as target_file:
         tree_from_file = pickle.load(target_file)
     return tree_from_file
 
