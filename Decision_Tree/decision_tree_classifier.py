@@ -1,4 +1,5 @@
 import copy
+import dill as pickle
 from typing import Tuple, Union, List, Optional, Any
 
 import graphviz
@@ -297,6 +298,15 @@ class DecisionTreeClassifier:
                 dataset = right_dataset
 
         return dataset
+
+    def save(self, file_name: str = "decision_tree"):
+        with open(file_name + ".pickle", "wb") as target_file:
+            pickle.dump(self, target_file)
+
+def load_decision_tree(file_name: str):
+    with open(file_name + ".pickle", "rb") as target_file:
+        tree_from_file = pickle.load(target_file)
+    return tree_from_file
 
 def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, prune: bool = True, visualise_tree: bool = True):
     tree = DecisionTreeClassifier.from_dataset(training_set)
