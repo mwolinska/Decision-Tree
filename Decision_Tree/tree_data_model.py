@@ -4,26 +4,32 @@ import numpy as np
 
 
 class Dataset(object):
-    def __init__(self, feature_data: np.ndarray = None, labels: np.ndarray = None):
-        self.feature_data: Optional[np.ndarray] = feature_data
-        self.labels: Optional[np.ndarray] = labels
+    def __init__(self,
+        feature_data: Optional[np.ndarray] = None,
+        labels: Optional[np.ndarray] = None,
+        feature_names: Optional[np.ndarray] = None,
+        label_names: Optional[np.ndarray] = None
+        ):
 
-        self.feature_names: Optional[np.ndarray] = None
-        self.label_names: Optional[np.ndarray] = None
+        self.feature_data = feature_data
+        self.labels = labels
+
+        self.feature_names = feature_names
+        self.label_names = label_names
 
     def get_feature(self, feature_idx: int) -> str:
         if self.feature_names is not None:
             feature_name = self.feature_names[feature_idx]
             return feature_name
         else:
-            return feature_idx
+            return str(feature_idx)
 
     def get_label(self, label_idx: int) -> str:
         if self.label_names is not None:
             label = self.label_names[label_idx]
             return label
         else:
-            return label_idx
+            return str(label_idx)
 
     @classmethod
     def from_array(cls,
@@ -44,8 +50,9 @@ class Dataset(object):
         return new_dataset
 
 class Leaf(object):
-    def __init__(self, leaf_value: Any):
+    def __init__(self, leaf_value: Any, depth: Optional[int] = None):
         self.leaf_value = leaf_value
+        self.depth = depth
 
 class SplitCondition(object):
     def __init__(self, feature: int, split_value: Union[int, float, bool, str], operator: Optional[Callable] = None):
@@ -58,13 +65,13 @@ class SplitCondition(object):
         if self.operator == self.split_value.__eq__:
             return "="
         elif self.operator == self.split_value.__le__:
-            return "<="
-        elif self.operator == self.split_value.__ge__:
             return ">="
+        elif self.operator == self.split_value.__ge__:
+            return "<="
         elif self.operator == self.split_value.__lt__:
-            return "<"
-        elif self.operator == self.split_value.__gt__:
             return ">"
+        elif self.operator == self.split_value.__gt__:
+            return "<"
 
     def set_operator(self, operator_as_string: str):
         if operator_as_string == "==":
@@ -81,10 +88,17 @@ class SplitCondition(object):
             raise NotImplementedError("This operator is not implemented")
 
 class Node(object):
-    def __init__(self, split_condition: SplitCondition, left: Union["Node", Leaf], right: Union["Node", Leaf]):
+    def __init__(self,
+        split_condition: SplitCondition,
+        left: Union["Node", Leaf],
+        right: Union["Node", Leaf],
+        depth: Optional[int] = None,
+        ):
+
         self.split_condition = split_condition
         self.left: Union["Node", Leaf] = left
         self.right: Union["Node", Leaf] = right
+        self.depth = depth
 
 class Split(object):
     def __init__(self, split_condition: SplitCondition, information_gain: float):

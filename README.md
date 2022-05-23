@@ -24,33 +24,68 @@ poetry install
 ```
 
 ### Using the package
-Command line interface is not implemented in v1.0.0. An example run using the
-[iris dataset](https://archive.ics.uci.edu/ml/datasets/iris) would look like this. Please note the preparation of the dataset into the correct
-format is not yet implemented. 
+Ensure the dataset you are using is saved within the package. 
+The cli is triggered by using the decision-tree command, which launches the cli script.
+The cli has 3 commands:
+- run
+- load
+- help
 
-```python
-    import numpy as np
-    from sklearn.datasets import load_iris
-    dataset = load_iris()
-    features = dataset["data"]
-    labels = dataset["target"]
+An example run using the [iris dataset](https://archive.ics.uci.edu/ml/datasets/iris) 
+ would look like this.
+#### Help command
+Default command to view available command.
 
-    dataset = np.hstack([features, labels.reshape(-1, 1)])
+#### Run command
+This function takes a full dataset (in csv format), separates it into training, validation and test sets. 
+It then generates a decision tree based on the training data. 
+It has optional arguments -prune and -draw-tree (set to True by default).
+The decision tree can also be saved in pickle format
+by specifying the optional argument output.
 
-    training_set, test_set, validation_set = split_dataset_using_shuffle(dataset, 
-                                                                         dataset_ratio_for_training=0.6)
-    tree = DecisionTreeClassifier.from_dataset(training_set)
-    success_rate = tree.evaluate_tree(validation_set)
-    tree.draw()
+To create a decision tree based on the iris.csv dataset and 
+save it as "iris_decision_tree.pickle" the following command can be run:
 
+```bash
+decision-tree run iris.csv iris_decision_tree.pickle
 ```
 
-Once a run is completed, the decision tree will be saved under "tree_visual.pdf" in the
-project directory. The tree generated using the run above would look like this:
+To set either the prune or draw-tree variables to False, use one the following syntaxes:
 
-<img src="./Images/SampleDecisionTree/tree_visual_test.png" height="500">
+```bash
+decision-tree run iris.csv iris_decision_tree.pickle -p False -d False
+```
+Or:
 
-If the feature and label names are added to the training dataset, those are included in
-the tree visualisation for greater clarity.
+```bash
+decision-tree run iris.csv iris_decision_tree.pickle --prune False --draw-tree False
+```
 
-<img src="./Images/SampleDecisionTree/tree_visual_with_names.png" height="500">
+Once a run is completed, if the draw-tree argument was set to True 
+the decision tree will be saved under "tree_visual.pdf" in the
+project directory. If the feature and label names are added to the training dataset, those are included in
+the tree visualisation. The tree generated using the run above would look like this:
+
+<img src="./Images/SampleDecisionTree/tree_visual_with_names.png">
+
+If the prune variable is set to True the pruned tree visualisation will be saved under 
+"pruned_tree.pdf" in the project directory. For this run it would look like this:
+
+<img src="./Images/SampleDecisionTree/pruned_tree.png">
+
+If the feature names are not included in the dataset the tree will be labeled using
+column indices as feature numbers. This image is generated using a different run than those above.
+
+<img src="./Images/SampleDecisionTree/tree_visual_no_names.png" height="500">
+
+#### Load command
+The load command allows the user to load an existing decision tree (in pickle format)
+and generate predictions for a dataset. The user needs to specify the 
+filename from which the tree will be loaded,
+the csv containing the data points requiring prediction and
+the output file where the predicted values should be stored.
+An example run would look like this:
+
+```bash
+decision-tree load iris_decision_tree.pickle samples_for_prediction.csv predictions.csv
+```
