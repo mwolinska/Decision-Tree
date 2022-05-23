@@ -302,17 +302,17 @@ def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, pr
     tree = DecisionTreeClassifier.from_dataset(training_set)
     unpruned_score = tree.evaluate_tree(validation_set)
 
-    if prune is True:
+    if prune:
         pruned_tree = tree.prune(training_set, validation_set)
         pruned_score = pruned_tree.evaluate_tree(validation_set)
         print(f"Unpruned score: {unpruned_score}, pruned score: {pruned_score}. performed on validation dataset")
-        if visualise_tree is True:
+        if visualise_tree:
             pruned_tree.draw(training_set, file_name="pruned_tree")
             tree.draw(training_set)
 
         return pruned_tree
 
-    elif visualise_tree is True:
+    elif visualise_tree:
         tree.draw(training_set)
 
     print(f"Unpruned score: {unpruned_score}, pruning not performed.")

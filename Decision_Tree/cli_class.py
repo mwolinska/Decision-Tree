@@ -1,3 +1,5 @@
+import distutils
+
 from cleo import Command
 
 from Decision_Tree.dataset_processing import prepare_datasets_from_csv
@@ -19,8 +21,8 @@ class CreateDecisionTree(Command):
     def handle(self):
         filename = self.argument('filename')
         output = self.argument('output')
-        prune = self.option('prune')
-        visual = self.option('draw-tree')
+        prune = bool(distutils.util.strtobool(self.option('prune')))
+        visual = bool(distutils.util.strtobool(self.option('draw-tree')))
 
         training_set, test_set, validation_set = prepare_datasets_from_csv(filename)
         decision_tree = main_create_decision_tree(training_set, validation_set, prune, visual)
