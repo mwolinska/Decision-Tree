@@ -1,5 +1,5 @@
 import csv
-from typing import Tuple
+from typing import Tuple, List
 
 import numpy as np
 
@@ -12,14 +12,17 @@ def prepare_datasets_from_csv(file_name: str, data_delimiter: str = ",", trainin
     training_dataset, test_dataset, validate_dataset = split_dataset(full_dataset, training_dataset_ratio)
     return training_dataset, test_dataset, validate_dataset
 
-def create_array_from_csv(file_name: str, data_delimiter: str):
+def create_array_from_csv(file_name: str, data_delimiter: str = ",", numerical_data_only: bool = False):
     data_list = []
     with open(file_name) as datafile:
         data_reader = csv.reader(datafile, delimiter=data_delimiter)
         for row in data_reader:
             data_list.append(row)
 
-    data_array = np.asarray(data_list)
+    if numerical_data_only:
+        data_array = np.asarray(data_list, dtype=float)
+    else:
+        data_array = np.asarray(data_list)
 
     return data_array
 
@@ -64,6 +67,26 @@ def split_dataset(dataset: Dataset, dataset_ratio_for_training: float = 0.6) -> 
                                )
     return training_dataset, test_dataset, validate_dataset
 
+def list_to_csv(a_list: List, file_name: str):
+    with open(file_name, "w") as target_file:
+        for el in a_list:
+            target_file.write(str(el))
+            target_file.write("\n")
 
 
-    return training_dataset, test_dataset, validate_dataset
+# def split_dataset_using_choice(dataset:np.ndarray, dataset_ratio_for_training: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+#     dataset_array_of_indices = np.indices((0, len(dataset)))
+#     validation_set_size = int(len(dataset) * dataset_ratio_for_training)
+#     mask_for_training_set = np.random.choice(dataset_array_of_indices[1], size=validation_set_size, replace=False)
+#
+#     training_set = dataset[mask_for_training_set]
+#     other_sets = dataset[~mask_for_training_set]
+#
+#     indices_in_new_dataset = np.indices((0, len(other_sets)))
+#     training_set_size = int(0.5 * len(other_sets))
+#     mask_for_test_set = np.random.choice(indices_in_new_dataset, size=training_set_size, replace=False)
+#
+#     test_set = other_sets[mask_for_test_set]
+#     validate_set = other_sets[~mask_for_test_set]
+#
+#     return training_set, test_set, validate_set

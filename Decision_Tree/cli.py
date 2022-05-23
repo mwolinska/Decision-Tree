@@ -1,12 +1,10 @@
-# !/usr/bin/env python
-
-
 from cleo import Application
 
-from Decision_Tree.cli_class import CreateDecisionTree
+from Decision_Tree.cli_class import CreateDecisionTree, LoadDecisionTree
 
-application = Application()
-application.add(CreateDecisionTree())
 
-if __name__ == '__main__':
+def main():
+    application = Application()
+    application.add(CreateDecisionTree())
+    application.add(LoadDecisionTree())
     application.run()
