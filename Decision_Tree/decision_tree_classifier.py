@@ -4,7 +4,7 @@ from typing import Tuple, Union, List, Optional, Any
 import graphviz
 import numpy as np
 
-from Decision_Tree.dataset_processing import split_dataset_using_shuffle
+from Decision_Tree.dataset_processing import prepare_datasets_from_csv
 from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split, Dataset
 
 
@@ -137,7 +137,7 @@ class DecisionTreeClassifier:
         return information_gain
 
     @staticmethod
-    def entropy(self, training_dataset: Dataset) -> float:
+    def entropy(training_dataset: Dataset) -> float:
         unique_labels = np.unique(training_dataset.labels)
         entropy = 0
         total_samples = training_dataset.feature_data.shape[0]
@@ -219,7 +219,6 @@ class DecisionTreeClassifier:
                 leaf_value = pruned_tree.find_value_to_replace_node(training_set, path)
                 pruning_test_tree.tree = pruned_tree.replace_node_with_leaf(tree_copy_for_replacement, path, leaf_value)
                 pruning_success_score = pruning_test_tree.evaluate_tree(validation_set)
-                print(f"Best success ratio is {best_success_ratio} and prunning success ratio is {pruning_success_score}")
                 if pruning_success_score >= best_success_ratio:
                     best_success_ratio = pruning_success_score
                     pruned_tree = pruning_test_tree
