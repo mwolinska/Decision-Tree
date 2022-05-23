@@ -12,14 +12,17 @@ def prepare_datasets_from_csv(file_name: str, data_delimiter: str = ",", trainin
     training_dataset, test_dataset, validate_dataset = split_dataset(full_dataset, training_dataset_ratio)
     return training_dataset, test_dataset, validate_dataset
 
-def create_array_from_csv(file_name: str, data_delimiter: str):
+def create_array_from_csv(file_name: str, data_delimiter: str = ",", numerical_data_only: bool = False):
     data_list = []
     with open(file_name) as datafile:
         data_reader = csv.reader(datafile, delimiter=data_delimiter)
         for row in data_reader:
             data_list.append(row)
 
-    data_array = np.asarray(data_list)
+    if numerical_data_only:
+        data_array = np.asarray(data_list, dtype=float)
+    else:
+        data_array = np.asarray(data_list)
 
     return data_array
 
