@@ -1,7 +1,7 @@
 import copy
-import dill as pickle
 from typing import Tuple, Union, List, Optional, Any
 
+import dill as pickle
 import graphviz
 import numpy as np
 
