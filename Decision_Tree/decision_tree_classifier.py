@@ -298,25 +298,22 @@ class DecisionTreeClassifier:
 
         return dataset
 
-
-if __name__ == '__main__':
-    import numpy as np
-    from sklearn.datasets import load_iris
-    dataset = load_iris()
-    features = dataset["data"]
-    labels = dataset["target"]
-
-    feature_names = np.asarray(dataset["feature_names"])
-    target_names = np.asarray(dataset["target_names"])
-
-    dataset = np.hstack([features, labels.reshape(-1, 1)])
-
-    training_set, test_set, validation_set = split_dataset_using_shuffle(dataset, dataset_ratio_for_training=0.6)
-    training_set.label_names = target_names
-    training_set.feature_names = feature_names
-
+def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, prune: bool = True, visualise_tree: bool = True):
     tree = DecisionTreeClassifier.from_dataset(training_set)
-    success = tree.evaluate_tree(validation_set)
+    unpruned_score = tree.evaluate_tree(validation_set)
 
-    tree.draw(training_set)
-    print()
+    if prune is True:
+        pruned_tree = tree.prune(training_set, validation_set)
+        pruned_score = pruned_tree.evaluate_tree(validation_set)
+        print(f"Unpruned score: {unpruned_score}, pruned score: {pruned_score}. performed on validation dataset")
+        if visualise_tree is True:
+            pruned_tree.draw(training_set, file_name="pruned_tree")
+            tree.draw(training_set)
+
+        return pruned_tree
+
+    elif visualise_tree is True:
+        tree.draw(training_set)
+
+    print(f"Unpruned score: {unpruned_score}, pruning not performed.")
+    return tree
