@@ -11,11 +11,16 @@ graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 name = "graphviz"
-version = "0.2.2"
+version = "0.20"
 description = "Simple Python interface for Graphviz"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
+
+[package.extras]
+dev = ["tox (>=3)", "flake8", "pep8-naming", "wheel", "twine"]
+docs = ["sphinx (>=4)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
+test = ["pytest (>=7)", "pytest-mock (>=3)", "mock (>=4)", "pytest-cov", "coverage"]
 
 [[package]]
 name = "numpy"
@@ -28,7 +33,7 @@ python-versions = ">=3.8"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "4176b976f82afde79ed9271b91c698c1dd76772e7a57d24147d8a4c7c10136f7"
+content-hash = "edde036b76712207922b6568821cb03ad43cba505e19dc4776d3da8c073ee631"
 
 [metadata.files]
 dill = [
@@ -36,7 +41,8 @@ dill = [
     {file = "dill-0.3.5.1.tar.gz", hash = "sha256:d75e41f3eff1eee599d738e76ba8f4ad98ea229db8b085318aa2b3333a208c86"},
 ]
 graphviz = [
-    {file = "graphviz-0.2.2.zip", hash = "sha256:49a6b7a2d6e95d837d8796d03f70b97392ada0e337bc3fcc929ad1a3fe167f8d"},
+    {file = "graphviz-0.20-py3-none-any.whl", hash = "sha256:62c5f48bcc534a45b4588c548ff75e419c1f1f3a33d31a91796ae80a7f581e4a"},
+    {file = "graphviz-0.20.zip", hash = "sha256:76bdfb73f42e72564ffe9c7299482f9d72f8e6cb8d54bce7b48ab323755e9ba5"},
 ]
 numpy = [
     {file = "numpy-1.22.4-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:ba9ead61dfb5d971d77b6c131a9dbee62294a932bf6a356e48c75ae684e635b3"},
