@@ -2,8 +2,8 @@ import distutils
 
 from cleo import Command
 
-from Decision_Tree.dataset_processing import prepare_datasets_from_csv
-from Decision_Tree.decision_tree_classifier import main_create_decision_tree, main_test_tree
+from Decision_Tree.dataset_processing import prepare_datasets_from_csv, create_array_from_csv, list_to_csv
+from Decision_Tree.decision_tree_classifier import main_create_decision_tree, main_test_tree, load_decision_tree
 
 
 class CreateDecisionTree(Command):
