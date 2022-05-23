@@ -5,14 +5,14 @@ from typing import Tuple, Union, List, Optional, Any
 import graphviz
 import numpy as np
 
-from Decision_Tree.dataset_processing import prepare_datasets_from_csv
+from Decision_Tree.dataset_processing import prepare_datasets_from_csv, create_array_from_csv, list_to_csv
 from Decision_Tree.tree_data_model import Leaf, Node, SplitCondition, Split, Dataset
 
 
 class DecisionTreeClassifier:
     def __init__(self):
         self.tree = None
-        self.tree_visual = graphviz.Digraph()
+        self.tree_visual = None
         self.max_depth = 0
 
     @classmethod
@@ -157,6 +157,7 @@ class DecisionTreeClassifier:
         else:
             for point in sample_points:
                 predictions.append(self._recursive_predict(point, self.tree))
+
         return predictions
 
     def _recursive_predict(self, sample_point: np.ndarray, tree: Union[Node, Leaf]) -> Union[float, Node]:
@@ -188,6 +189,7 @@ class DecisionTreeClassifier:
         return success_ratio
 
     def draw(self, dataset: Dataset, file_name: str = "tree_visual"):
+        self.tree_visual = graphviz.Digraph()
         self.assign_nodes_to_visual(self.tree, '', dataset)
         self.tree_visual.view(filename=file_name)
 
