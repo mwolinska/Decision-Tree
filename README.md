@@ -24,33 +24,38 @@ poetry install
 ```
 
 ### Using the package
-Command line interface is not implemented in v1.0.0. An example run using the
-[iris dataset](https://archive.ics.uci.edu/ml/datasets/iris) would look like this. Please note the preparation of the dataset into the correct
-format is not yet implemented. 
+ An example run using the[iris dataset](https://archive.ics.uci.edu/ml/datasets/iris) 
+ would look like this.
+Ensure the dataset you are using is saved within the package. 
+The cli has optional arguments prune and draw-tree, which are set to True by default.
 
-```python
-    import numpy as np
-    from sklearn.datasets import load_iris
-    dataset = load_iris()
-    features = dataset["data"]
-    labels = dataset["target"]
+```bash
+ python cli.py run iris.csv 
+```
 
-    dataset = np.hstack([features, labels.reshape(-1, 1)])
+To set either the prune or draw-tree variables to False, use one the following syntaxes:
 
-    training_set, test_set, validation_set = split_dataset_using_shuffle(dataset, 
-                                                                         dataset_ratio_for_training=0.6)
-    tree = DecisionTreeClassifier.from_dataset(training_set)
-    success_rate = tree.evaluate_tree(validation_set)
-    tree.draw()
+```bash
+ python cli.py run iris.csv -p False -d False
+```
+Or:
 
+```bash
+python cli.py run iris.csv --prune False --draw-tree False
 ```
 
 Once a run is completed, the decision tree will be saved under "tree_visual.pdf" in the
-project directory. The tree generated using the run above would look like this:
+project directory. If the feature and label names are added to the training dataset, those are included in
+the tree visualisation. The tree generated using the run above would look like this:
 
-<img src="./Images/SampleDecisionTree/tree_visual_test.png" height="500">
+<img src="./Images/SampleDecisionTree/tree_visual_with_names.png">
 
-If the feature and label names are added to the training dataset, those are included in
-the tree visualisation for greater clarity.
+If the prune variable is set to True the pruned tree visualisation will be saved under 
+"pruned_tree.pdf" in the project directory. For this run it would look like this:
 
-<img src="./Images/SampleDecisionTree/tree_visual_with_names.png" height="500">
+<img src="./Images/SampleDecisionTree/pruned_tree.png">
+
+If the feature names are not included in the dataset the tree will be labeled using
+column indices as feature numbers. This image is generated using a different run than those above.
+
+<img src="./Images/SampleDecisionTree/tree_visual_no_names.png" height="500">
