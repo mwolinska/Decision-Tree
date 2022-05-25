@@ -14,7 +14,7 @@ class CreateDecisionTree(Command):
         {filename : Which file would you like to use to create a decision tree}
         {output? : Specify the location of the output.}
         {--p|prune=?True : If set to True, the decision tree will be pruned. Set to True by default}
-        {--d|draw-tree=?True : If set to True, the decision tree will be saved as a visualisation. Set to True by default}
+        {--d|draw-tree=?False : If set to True, the decision tree will be saved as a visualisation. Set to False by default}
 
     """
 
