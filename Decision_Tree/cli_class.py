@@ -14,7 +14,7 @@ class CreateDecisionTree(Command):
         {filename : Which file would you like to use to create a decision tree}
         {output? : Specify the location of the output.}
         {--p|prune=?True : If set to True, the decision tree will be pruned. Set to True by default}
-        {--d|draw-tree=?False : If set to True, the decision tree will be saved as a visualisation. Set to False by default}
+        {--d|draw-tree=?"" : If not empty, the decision tree will be saved as a visualisation to the destination.}
 
     """
 
@@ -22,7 +22,7 @@ class CreateDecisionTree(Command):
         filename = self.argument('filename')
         output = self.argument('output')
         prune = bool(distutils.util.strtobool(self.option('prune')))
-        draw_tree = bool(distutils.util.strtobool(self.option('draw-tree')))
+        draw_tree = self.option('draw-tree')
 
         training_set, test_set, validation_set = prepare_datasets_from_csv(filename)
         decision_tree = main_create_decision_tree(training_set, validation_set, prune, draw_tree)
