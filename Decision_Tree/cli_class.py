@@ -1,4 +1,4 @@
-import distutils
+import distutils.util
 
 from cleo import Command
 
