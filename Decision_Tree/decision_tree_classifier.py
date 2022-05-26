@@ -1,7 +1,7 @@
 import copy
-import dill as pickle
 from typing import Tuple, Union, List, Optional, Any
 
+import dill as pickle
 import graphviz
 import numpy as np
 
@@ -191,7 +191,7 @@ class DecisionTreeClassifier:
     def draw(self, dataset: Dataset, file_name: str = "tree_visual"):
         self.tree_visual = graphviz.Digraph()
         self.assign_nodes_to_visual(self.tree, '', dataset)
-        self.tree_visual.view(filename=file_name)
+        self.tree_visual.render(filename=file_name)
 
     def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str, dataset: Dataset):
         if isinstance(tree, Leaf):
@@ -310,7 +310,7 @@ def load_decision_tree(file_name: str):
         tree_from_file = pickle.load(target_file)
     return tree_from_file
 
-def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, prune: bool = True, visualise_tree: bool = True):
+def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, prune: bool = True, visualise_tree: str = ""):
     tree = DecisionTreeClassifier.from_dataset(training_set)
     unpruned_score = tree.evaluate_tree(validation_set)
 
@@ -319,13 +319,13 @@ def main_create_decision_tree(training_set: Dataset, validation_set: Dataset, pr
         pruned_score = pruned_tree.evaluate_tree(validation_set)
         print(f"Unpruned score: {unpruned_score}, pruned score: {pruned_score}. performed on validation dataset")
         if visualise_tree:
-            pruned_tree.draw(training_set, file_name="pruned_tree")
-            tree.draw(training_set)
+            pruned_tree.draw(training_set, file_name=visualise_tree + "pruned_tree")
+            tree.draw(training_set, file_name=visualise_tree + "unpruned_tree_visual")
 
         return pruned_tree
 
     elif visualise_tree:
-        tree.draw(training_set)
+        tree.draw(training_set, file_name=visualise_tree + "tree_visual")
 
     print(f"Unpruned score: {unpruned_score}, pruning not performed.")
     return tree
