@@ -3,6 +3,18 @@ version: 2.1
 orbs:
   python: circleci/python@2.0.3
 
+executors:
+  docker-publisher:
+    # Define the image tag
+    environment:
+      IMAGE_TAG: mwolinska/decision-tree:latest
+    # Use `docker:stable` as the Docker image for this executor
+    docker:
+      - image: docker:stable
+        auth:
+          username: $DOCKERHUB_LOGIN
+          password: $DOCKERHUB_TOKEN
+
 jobs:
   make-new-release:
     docker:
@@ -18,21 +30,17 @@ jobs:
             RELEASE_VERSION=$(poetry version --short)
             gh release create $RELEASE_VERSION --generate-notes
   build-docker-image:
-    docker:
-      - image: cimg/python:3.8.12
-        auth:
-          username: $DOCKERHUB_LOGIN
-          password: $DOCKERHUB_TOKEN
+    executor: docker-publisher
     steps:
       - checkout
       - setup_remote_docker:
           version: 20.10.12
       - run:
-          name: Build Docker Iamge
+          name: Build Docker Image
           command: |
             docker build . -f Dockerfile -t decision_tree_test
-            docker tag decision_tree_test mwolinska/decision-tree:auto
-            docker push mwolinska/decision-tree:auto
+            docker tag decision_tree_test ${IMAGE_TAG}
+            docker push ${IMAGE_TAG}
 
 
 workflows:
