@@ -17,6 +17,23 @@ jobs:
           command: |
             RELEASE_VERSION=$(poetry version --short)
             gh release create $RELEASE_VERSION --generate-notes
+  build-docker-image:
+    docker:
+      - image: cimg/python:3.8.12
+        auth:
+          username: $DOCKERHUB_LOGIN
+          password: $DOCKERHUB_TOKEN
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+      - run:
+          name: Build Docker Iamge
+          command: |
+            docker build . -f Dockerfile -t decision_tree_test
+            docker tag decision_tree_test mwolinska/decision-tree:auto
+            docker push mwolinska/decision-tree:auto
+
 
 workflows:
   main:
@@ -29,6 +46,16 @@ workflows:
                 - main
           context:
             - GITHUB_CREDS
+      - build-docker-image:
+          filters:
+            branches:
+              only:
+                - master
+                - main
+                - add_docker_to_ci
+          context:
+            - DOCKER_CREDS
+
 
 commands:
   install-gh-cli:
