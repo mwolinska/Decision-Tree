@@ -16,8 +16,7 @@ jobs:
           name: Create release
           command: |
             RELEASE_VERSION=$(poetry version --short)
-            echo $RELEASE_VERSION
-#            gh release create
+            gh release create $RELEASE_VERSION --generate-notes
 
 workflows:
   main:
