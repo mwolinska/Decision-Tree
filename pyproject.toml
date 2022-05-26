@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "decision-tree"
-version = "v2.2.1"
+version = "v2.2.2"
 description = ""
 authors = ["Marta <mswolinska@gmail.com>"]
 packages = [
