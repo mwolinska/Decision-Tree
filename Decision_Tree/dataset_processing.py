@@ -73,7 +73,6 @@ def list_to_csv(a_list: List, file_name: str):
             target_file.write(str(el))
             target_file.write("\n")
 
-
 # def split_dataset_using_choice(dataset:np.ndarray, dataset_ratio_for_training: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 #     dataset_array_of_indices = np.indices((0, len(dataset)))
 #     validation_set_size = int(len(dataset) * dataset_ratio_for_training)
