@@ -23,8 +23,26 @@ To install all dependencies run:
 poetry install
 ```
 
-### Using the package
-Ensure the dataset you are using is saved within the package. 
+## Using the package
+### File structure
+The file structure we propose is outlined below. 
+This was used to generate the suggested_commands
+```bash
+.
+├── Decision-Tree
+│   └──Decision_Tree
+└── Decision-Tree-Data
+    └── Iris-Dataset
+        └── iris.csv
+```
+### Dataset format
+Currently, this package only accepts datasets in csv format, where the following conditions need to be met:
+- data labels are the last column in string format, 
+- feature labels are in the first row of the data
+- feature data is numerical
+The dataset can be saved anywhere as it is passed as an argument.
+
+### Available commands
 The cli is triggered by using the decision-tree command, which launches the cli script.
 The cli has 3 commands:
 - run
@@ -32,33 +50,33 @@ The cli has 3 commands:
 - help
 
 An example run using the [iris dataset](https://archive.ics.uci.edu/ml/datasets/iris) 
- would look like this.
-#### Help command
-Default command to view available command.
+ is outlined below.
 
 #### Run command
 This function takes a full dataset (in csv format), separates it into training, validation and test sets. 
 It then generates a decision tree based on the training data. 
-It has optional arguments -prune and -draw-tree (set to True by default).
-The decision tree can also be saved in pickle format
-by specifying the optional argument output.
+It has optional arguments:
+- output: tree can be saved by specifying output in pickle format,
+- --prune (True by default): specifies whether pruning should be defined, and 
+- -draw-tree (string, empty by default): specifies destination of tree visualisations, 
+if it is not set, no visualisations will be generated.
 
 To create a decision tree based on the iris.csv dataset and 
 save it as "iris_decision_tree.pickle" the following command can be run:
 
 ```bash
-decision-tree run iris.csv iris_decision_tree.pickle
+decision-tree run ../Decision-Tree-Data/Iris-Dataset/iris.csv ../Decision-Tree-Data/Iris-Dataset/iris_decision_tree.pickle
 ```
 
-To set either the prune or draw-tree variables to False, use one the following syntaxes:
+To set either the prune or draw-tree variables, use one the following syntaxes:
 
 ```bash
-decision-tree run iris.csv iris_decision_tree.pickle -p False -d False
+decision-tree run ../Decision-Tree-Data/Iris-Dataset/iris.csv -p False -d ../Decision-Tree-Data/Iris-Dataset/visual/
 ```
 Or:
 
 ```bash
-decision-tree run iris.csv iris_decision_tree.pickle --prune False --draw-tree False
+decision-tree run ../Decision-Tree-Data/Iris-Dataset/iris.csv --prune False --draw-tree ../Decision-Tree-Data/Iris-Dataset/visual/
 ```
 
 Once a run is completed, if the draw-tree argument was set to True 
@@ -87,5 +105,38 @@ the output file where the predicted values should be stored.
 An example run would look like this:
 
 ```bash
-decision-tree load iris_decision_tree.pickle samples_for_prediction.csv predictions.csv
+decision-tree load ../Decision-Tree-Data/Iris-Dataset/iris_decision_tree.pickle ../Decision-Tree-Data/Iris-Dataset/samples_for_prediction.csv ../Decision-Tree-Data/Iris-Dataset/predictions.csv
+```
+#### Help command
+Default command to view available command.
+
+## Using the package with docker
+A docker image of the package is available here. 
+
+To download the docker image run:
+
+```bash
+ docker run mwolinska/decision-tree:manual
+```
+
+To load and save data outside of the docker image it is necessary to mount a directory from your machine
+into the docker image. The following command runs the decision-tree run command, saves the output
+and generates the visuals.
+
+```bash
+docker run -v $(pwd)/Decision-Tree-Data:/workdir/All-Data -it decision_tree run /workdir/All-Data/Iris-Dataset/iris.csv /workdir/All-Data/Iris-Dataset/test.pickle -d /workdir/All-Data/Iris-Dataset/visual/
+```
+
+This will result in the following files being generated:
+
+```bash
+Decision-Tree-Data
+└── Iris-Dataset
+    ├── iris.csv
+    ├── test.pickle
+    └── visual
+        ├── pruned_tree
+        ├── pruned_tree.pdf
+        ├── unpruned_tree_visual
+        └── unpruned_tree_visual.pdf
 ```
