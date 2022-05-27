@@ -63,7 +63,6 @@ workflows:
               only:
                 - master
                 - main
-                - add_docker_to_ci
           context:
             - DOCKER_CREDS
 
