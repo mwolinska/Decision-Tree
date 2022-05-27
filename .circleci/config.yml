@@ -16,7 +16,35 @@ jobs:
           name: Create release
           command: |
             RELEASE_VERSION=$(poetry version --short)
-            gh release create $RELEASE_VERSION --generate-notes
+            gh release create $RELEASE_VERSION --generate-notes 
+
+  build-docker-image:
+    docker:
+      - image: cimg/python:3.8.12
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.12
+      - python/install-packages:
+          pkg-manager: poetry
+      - run:
+          name: Get release tag
+          command: |
+            RELEASE_VERSION=$(poetry version --short)
+            echo $RELEASE_VERSION
+            echo RELEASE_NUMBER=$RELEASE_VERSION >> $BASH_ENV
+      - run:
+          name: Build Docker image
+          command: |
+            docker login -u $DOCKERHUB_LOGIN -p $DOCKERHUB_TOKEN
+            docker build . -f Dockerfile -t decision_tree
+      - run:
+          name: Push Docker image
+          command: |
+            docker tag decision_tree mwolinska/decision-tree:latest
+            docker tag decision_tree mwolinska/decision-tree:$RELEASE_NUMBER
+            docker push mwolinska/decision-tree:latest
+            docker push mwolinska/decision-tree:$RELEASE_NUMBER
 
 workflows:
   main:
@@ -29,6 +57,14 @@ workflows:
                 - main
           context:
             - GITHUB_CREDS
+      - build-docker-image:
+          filters:
+            branches:
+              only:
+                - master
+                - main
+          context:
+            - DOCKER_CREDS
 
 commands:
   install-gh-cli:
