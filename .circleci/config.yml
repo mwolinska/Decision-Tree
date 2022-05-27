@@ -27,6 +27,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.12
+      - run: echo $PIPELINE_GIT_TAG
       - run:
           name: Build Docker image
           command: |
@@ -49,6 +50,7 @@ workflows:
               only:
                 - master
                 - main
+                - add_docker_to_ci
           context:
             - GITHUB_CREDS
       - build-docker-image:
