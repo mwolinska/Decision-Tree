@@ -1,4 +1,10 @@
 # Decision-Tree
+A generic decision tree classifier, which generates, prunes and visualises a decision tree based on an unseen dataset.
+
+[![Release version](https://img.shields.io/github/v/release/mwolinska/Decision-Tree)](https://github.com/mwolinska/Decision-Tree/releases)
+[![CircleCI](https://img.shields.io/circleci/build/github/mwolinska/Decision-Tree/main)](https://github.com/mwolinska/Decision-Tree)
+[![DockerHub](https://img.shields.io/badge/Docker%20build-automated-success)](https://hub.docker.com/repository/docker/mwolinska/decision-tree)
+
 ## Introduction
 This package allows the user to build a decision tree from a previously unseen dataset.
 Once the tree is built the user can test the accuracy of the tree, predict the class label
