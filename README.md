@@ -105,7 +105,7 @@ the output file where the predicted values should be stored.
 An example run would look like this:
 
 ```bash
-decision-tree load ../Decision-Tree-Data/Iris-Dataset/iris_decision_tree.pickle ../Decision-Tree-Data/Iris-Dataset/samples_for_prediction.csv ../Decision-Tree-Data/Iris-Dataset/predictions.csv
+decision-tree load <your-pickle-file> <your-samples-csv-file> <path-to-save-your-predictions>/predictions.csv
 ```
 #### Help command
 Default command to view available command.
