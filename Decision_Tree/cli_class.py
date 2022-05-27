@@ -12,7 +12,7 @@ class CreateDecisionTree(Command):
 
     run
         {filename : Which file would you like to use to create a decision tree}
-        {output? : Specify the location of the output.}
+        {output? : Specify the location of the output in .pickle format.}
         {--p|prune=?True : If set to True, the decision tree will be pruned. Set to True by default}
         {--d|draw-tree=? : If not empty, the decision tree will be saved as a visualisation to the destination.}
 
