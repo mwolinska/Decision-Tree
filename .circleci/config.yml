@@ -27,19 +27,17 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.12
-      - run: echo $PIPELINE_GIT_TAG
-      - run:
-          name: Build Docker image
-          command: |
-            docker login -u $DOCKERHUB_LOGIN -p $DOCKERHUB_TOKEN
-            docker build . -f Dockerfile -t decision_tree
-      - run:
-          name: Push Docker image
-          command: |
-            docker tag decision_tree mwolinska/decision-tree:latest
-            docker tag decision_tree mwolinska/decision-tree:${PIPELINE_GIT_TAG}
-            docker push mwolinska/decision-tree:latest
-            docker push mwolinska/decision-tree:${PIPELINE_GIT_TAG}
+      - run: echo $CIRCLE_TAG
+#      - run:
+#          name: Build Docker image
+#          command: |
+#            docker login -u $DOCKERHUB_LOGIN -p $DOCKERHUB_TOKEN
+#            docker build . -f Dockerfile -t decision_tree
+#      - run:
+#          name: Push Docker image
+#          command: |
+#            docker tag decision_tree mwolinska/decision-tree:latest
+#            docker push mwolinska/decision-tree:${PIPELINE_GIT_TAG}
 
 workflows:
   main:
