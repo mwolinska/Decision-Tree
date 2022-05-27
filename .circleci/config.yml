@@ -34,7 +34,9 @@ jobs:
           name: Push Docker image
           command: |
             docker tag decision_tree mwolinska/decision-tree:latest
+            docker tag decision_tree mwolinska/decision-tree:pipeline.git.tag
             docker push mwolinska/decision-tree:latest
+            docker push mwolinska/decision-tree:pipeline.git.tag
 
 workflows:
   main:
