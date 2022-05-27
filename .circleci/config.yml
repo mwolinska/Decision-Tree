@@ -17,21 +17,24 @@ jobs:
           command: |
             RELEASE_VERSION=$(poetry version --short)
             gh release create $RELEASE_VERSION --generate-notes
+
   build-docker-image:
     docker:
-      - image: docker:stable
+      - image: cimg/python:3.8.12
     steps:
       - checkout
       - setup_remote_docker:
           version: 20.10.12
       - run:
-          name: Build Docker Image
+          name: Build Docker image
           command: |
             docker login -u $DOCKERHUB_LOGIN -p $DOCKERHUB_TOKEN
-            docker build . -f Dockerfile -t decision_tree_test
-            docker tag decision_tree_test mwolinska/decision-tree:latest
+            docker build . -f Dockerfile -t decision_tree
+      - run:
+          name: Push Docker image
+          command: |
+            docker tag decision_tree mwolinska/decision-tree:latest
             docker push mwolinska/decision-tree:latest
-
 
 workflows:
   main:
