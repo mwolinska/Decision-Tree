@@ -116,7 +116,7 @@ A docker image of the package is available here.
 To download the docker image run:
 
 ```bash
- docker run mwolinska/decision-tree:manual
+ docker pull mwolinska/decision-tree:latest
 ```
 
 To load and save data outside of the docker image it is necessary to mount a directory from your machine
@@ -124,7 +124,11 @@ into the docker image. The following command runs the decision-tree run command,
 and generates the visuals.
 
 ```bash
-docker run -v $(pwd)/Decision-Tree-Data:/workdir/All-Data -it decision_tree run /workdir/All-Data/Iris-Dataset/iris.csv /workdir/All-Data/Iris-Dataset/test.pickle -d /workdir/All-Data/Iris-Dataset/visual/
+docker run \
+  -v $(pwd)/Decision-Tree-Data:/workdir/All-Data \
+  -it mwolinska/decision-tree:latest \
+  run /workdir/All-Data/Iris-Dataset/iris.csv /workdir/All-Data/Iris-Dataset/test.pickle \
+  -d /workdir/All-Data/Iris-Dataset/visual/
 ```
 
 This will result in the following files being generated:
