@@ -21,6 +21,8 @@ jobs:
   build-docker-image:
     docker:
       - image: cimg/python:3.8.12
+    environment:
+      PIPELINE_GIT_TAG: <<pipeline.git.tag>>
     steps:
       - checkout
       - setup_remote_docker:
@@ -34,9 +36,9 @@ jobs:
           name: Push Docker image
           command: |
             docker tag decision_tree mwolinska/decision-tree:latest
-            docker tag decision_tree mwolinska/decision-tree:pipeline.git.tag
+            docker tag decision_tree mwolinska/decision-tree:${PIPELINE_GIT_TAG}
             docker push mwolinska/decision-tree:latest
-            docker push mwolinska/decision-tree:pipeline.git.tag
+            docker push mwolinska/decision-tree:${PIPELINE_GIT_TAG}
 
 workflows:
   main:
