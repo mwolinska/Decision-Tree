@@ -189,14 +189,23 @@ class DecisionTreeClassifier:
         return success_ratio
 
     def draw(self, dataset: Dataset, file_name: str = "tree_visual"):
-        self.tree_visual = graphviz.Digraph()
+        self.tree_visual = graphviz.Digraph('decision-tree',
+                                            node_attr={'shape': 'box',
+                                                       'color': '#B88F7A',
+                                                       'fillcolor': '#E9D9D8',
+                                                       'style': 'filled',
+                                                       'fontname': 'Avenir Next'
+                                                       },
+                                            edge_attr={'fontname': 'Avenir Next',
+                                                       'color': '#B88F7A'},
+                                            )
         self.assign_nodes_to_visual(self.tree, '', dataset)
         self.tree_visual.render(filename=file_name)
 
     def assign_nodes_to_visual(self, tree: Union[Leaf, Node], node_name: str, dataset: Dataset):
         if isinstance(tree, Leaf):
             class_label = dataset.get_label(int(tree.leaf_value))
-            self.tree_visual.node(node_name, "Class label: " + str(class_label))
+            self.tree_visual.node(node_name, "Class label: " + str(class_label), color='#adc178', fillcolor='#dde5b6', style='filled')
         else:
             operator = tree.split_condition.operator_string
 
