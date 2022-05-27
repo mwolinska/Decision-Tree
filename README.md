@@ -65,18 +65,18 @@ To create a decision tree based on the iris.csv dataset and
 save it as "iris_decision_tree.pickle" the following command can be run:
 
 ```bash
-decision-tree run ../Decision-Tree-Data/Iris-Dataset/iris.csv ../Decision-Tree-Data/Iris-Dataset/iris_decision_tree.pickle
+decision-tree run <your-csv-file> <path-to-save-your-tree>/decision_tree.pickle
 ```
 
 To set either the prune or draw-tree variables, use one the following syntaxes:
 
 ```bash
-decision-tree run ../Decision-Tree-Data/Iris-Dataset/iris.csv -p False -d ../Decision-Tree-Data/Iris-Dataset/visual/
+decision-tree run <your-csv-file> -p False -d <path-to-save-your-visuals>/<desired-folder-name>/
 ```
 Or:
 
 ```bash
-decision-tree run ../Decision-Tree-Data/Iris-Dataset/iris.csv --prune False --draw-tree ../Decision-Tree-Data/Iris-Dataset/visual/
+decision-tree run <your-csv-file> --prune False --draw-tree <path-to-save-your-visuals>/<desired-folder-name>/
 ```
 
 Once a run is completed, if the draw-tree argument was set to True 
