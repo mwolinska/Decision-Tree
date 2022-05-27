@@ -44,10 +44,9 @@ The dataset can be saved anywhere as it is passed as an argument.
 
 ### Available commands
 The cli is triggered by using the decision-tree command, which launches the cli script.
-The cli has 3 commands:
-- run
-- load
-- help
+The cli has 3 available commands:
+
+<img src="./Images/Terminal/terminal_all_commands.png">
 
 An example run using the [iris dataset](https://archive.ics.uci.edu/ml/datasets/iris) 
  is outlined below.
@@ -55,11 +54,9 @@ An example run using the [iris dataset](https://archive.ics.uci.edu/ml/datasets/
 #### Run command
 This function takes a full dataset (in csv format), separates it into training, validation and test sets. 
 It then generates a decision tree based on the training data. 
-It has optional arguments:
-- output: tree can be saved by specifying output in pickle format,
-- --prune (True by default): specifies whether pruning should be defined, and 
-- -draw-tree (string, empty by default): specifies destination of tree visualisations, 
-if it is not set, no visualisations will be generated.
+It has optional arguments as outlined below:
+
+<img src="./Images/Terminal/terminal_run_help.png">
 
 To create a decision tree based on the iris.csv dataset and 
 save it as "iris_decision_tree.pickle" the following command can be run:
@@ -98,10 +95,10 @@ column indices as feature numbers. This image is generated using a different run
 
 #### Load command
 The load command allows the user to load an existing decision tree (in pickle format)
-and generate predictions for a dataset. The user needs to specify the 
-filename from which the tree will be loaded,
-the csv containing the data points requiring prediction and
-the output file where the predicted values should be stored.
+and generate predictions for a dataset. The required arguments are as below:
+
+<img src="./Images/Terminal/terminal_load_help.png">
+
 An example run would look like this:
 
 ```bash
